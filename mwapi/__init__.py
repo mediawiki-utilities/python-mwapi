@@ -38,7 +38,7 @@ class MWApi:
         self.tokens = {}
         self.is_authenticated = False
     
-    def request(self, method, params):
+    def request(self, method, params={}, data={}):
         """Makes a request to the API and returns a dictionary containing the results
 
         Arguments:
@@ -49,6 +49,7 @@ class MWApi:
                 method, 
                 self.api_url,
                 params=params,
+                data=data,
                 prefetch=True)
         return json.loads(resp.content)
 
@@ -116,5 +117,5 @@ class MWApi:
         Arguments:
         params - Parameters to send to the API. Varies depending on the action to be performed. 
         """
-        return self.request('POST', params)
+        return self.request('POST', data=params)
 
