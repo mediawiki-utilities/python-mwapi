@@ -38,8 +38,9 @@ class MWApi:
         self.tokens = {}
         self.is_authenticated = False
     
-    def request(self, method, params={}, data={}):
-        """Makes a request to the API and returns a dictionary containing the results
+    def _request(self, method, params={}, data={}):
+        """Makes a request to the API and returns a dictionary containing the results.
+        Private. Use .get or .post
 
         Arguments:
         method - GET or POST, depending on which API is being called
@@ -109,7 +110,7 @@ class MWApi:
         Arguments:
         params - Parameters to send to the API. Varies depending on the action to be performed. 
         """
-        return self.request('GET', params)
+        return self._request('GET', params)
 
     def post(self, params):
         """Makes an API request with the POST method
@@ -117,5 +118,5 @@ class MWApi:
         Arguments:
         params - Parameters to send to the API. Varies depending on the action to be performed. 
         """
-        return self.request('POST', data=params)
+        return self._request('POST', data=params)
 
