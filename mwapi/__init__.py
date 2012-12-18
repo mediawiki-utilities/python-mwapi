@@ -34,7 +34,8 @@ class MWApi:
         self.host = host
         self.api_path = api_path
         self.api_url = host + api_path
-        self.session = requests.session(params=MWApi.DEFAULT_PARAMS)
+        self.session = requests.session()
+        self.session.params = MWApi.DEFAULT_PARAMS
         self.tokens = {}
         self.is_authenticated = False
     
