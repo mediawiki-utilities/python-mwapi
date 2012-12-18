@@ -52,7 +52,7 @@ class MWApi:
                 self.api_url,
                 params=params,
                 data=data,
-                prefetch=True)
+                stream=True)
         return json.loads(resp.content)
 
     def login(self, username, password):
