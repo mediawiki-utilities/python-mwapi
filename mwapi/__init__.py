@@ -70,18 +70,9 @@ class MWApi:
         Passwords are sent as plaintext. This is a limitation of the Mediawiki API.
         Use a https host if you want your password to be secure
         """
-        login = self.post({
-            "action": "login",
-            "lgname": username,
-            "lgpassword": password
-        })
+        login = self.post(action="login", lgname=username, lgpassword=password)
 
-        confirm = self.post({
-            "action": "login",
-            "lgname": username,
-            "lgpassword": password,
-            "lgtoken": login['login']['token']
-        })
+        confirm = self.post(action="login", lgname=username, lgpassword=password, lgtoken=login['login']['token'])
 
         result = confirm['login']['result']
         if result != 'Success':
@@ -92,12 +83,7 @@ class MWApi:
         """Populates the `tokens` attribute of the object with `edittoken` and `watchtoken`.
         Requires that authentication has been performed already with `login()`
         """
-        info = self.get({
-            "action": "query",
-            "prop": "info",
-            "titles": "Main_Page",
-            "intoken": 'edit|watch'
-            })
+        info = self.get(action= "query", prop="info",title="Main_Page",intoken="edit|watch")
         page = info["query"]["pages"].values()[0]
         self.tokens = {
                 "edittoken": page["edittoken"],
@@ -105,19 +91,18 @@ class MWApi:
                 }
 
 
-    def get(self, params):
+    def get(self, **kwparams):
         """Makes an API request with the GET method
 
         Arguments:
         params - Parameters to send to the API. Varies depending on the action to be performed. 
         """
-        return self._request('GET', params)
+        return self._request('GET', kwparams)
 
-    def post(self, params):
+    def post(self, **kwparams):
         """Makes an API request with the POST method
 
         Arguments:
         params - Parameters to send to the API. Varies depending on the action to be performed. 
         """
-        return self._request('POST', data=params)
-
+        return self._request('POST', kwparams)
