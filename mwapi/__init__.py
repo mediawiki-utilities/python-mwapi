@@ -79,7 +79,22 @@ class MWApi:
             raise Exception("Login failed with result %s" % result, confirm)
         self.is_authenticated = True
 
-    def populateTokens(self):
+    def logout(self):
+        self.post(action='logout')
+        self.is_authenticated = False
+
+    def get_auth_cookie(self):
+        return requests.utils.dict_from_cookiejar(self.session.cookies)
+
+    def set_auth_cookie(self, auth_cookie):
+        self.session.cookies = requests.utils.cookiejar_from_dict(auth_cookie)
+
+    def validate_login(self):
+        data = self.get(action='query', meta='userinfo')
+        self.is_authenticated = 'anon' not in data['query']['userinfo']
+        return self.is_authenticated
+
+    def populate_tokens(self):
         """Populates the `tokens` attribute of the object with `edittoken` and `watchtoken`.
         Requires that authentication has been performed already with `login()`
         """
