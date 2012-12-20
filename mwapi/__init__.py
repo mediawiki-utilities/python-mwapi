@@ -15,7 +15,6 @@ class MWApi:
     Class representing a single API Session, with a single authenticated user.
 
     Useful Attributes:
-    tokens              - Contains an edittoken & watchtoken (if populateTokens() has been called)
     is_authenticated    - Boolean indicating if the MWApi is sending authenticated requests
     """
 
@@ -94,16 +93,9 @@ class MWApi:
         self.is_authenticated = 'anon' not in data['query']['userinfo']
         return self.is_authenticated
 
-    def populate_tokens(self):
-        """Populates the `tokens` attribute of the object with `edittoken` and `watchtoken`.
-        Requires that authentication has been performed already with `login()`
-        """
-        info = self.get(action= "query", prop="info",title="Main_Page",intoken="edit|watch")
-        page = info["query"]["pages"].values()[0]
-        self.tokens = {
-                "edittoken": page["edittoken"],
-                "watchtoken": page["watchtoken"]
-                }
+    def get_tokens(self, tokens="edit"):
+        data = self.get(action="tokens", type=tokens)
+        return data['tokens']
 
 
     def get(self, **kwparams):
