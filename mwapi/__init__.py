@@ -112,4 +112,4 @@ class MWApi:
         Arguments:
         params - Parameters to send to the API. Varies depending on the action to be performed. 
         """
-        return self._request('POST', kwparams)
+        return self._request('POST', data=kwparams)
