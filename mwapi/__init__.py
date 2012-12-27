@@ -7,8 +7,6 @@
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import requests
-try: import simplejson as json
-except ImportError: import json
 
 class MWApi:
     """
@@ -34,11 +32,10 @@ class MWApi:
         self.api_path = api_path
         self.api_url = host + api_path
         self.session = requests.session()
-        self.session.params = MWApi.DEFAULT_PARAMS
         self.tokens = {}
         self.is_authenticated = False
     
-    def _request(self, method, params={}, data={}):
+    def _request(self, method, params=None, data=None, files=None):
         """Makes a request to the API and returns a dictionary containing the results.
         Private. Use .get or .post
 
@@ -51,8 +48,9 @@ class MWApi:
                 self.api_url,
                 params=params,
                 data=data,
+                files=files,
                 stream=True)
-        return json.loads(resp.content)
+        return resp.json()
 
     def login(self, username, password):
         """Authenticates with the given credentials and logs in the user for the session. 
@@ -77,6 +75,7 @@ class MWApi:
         if result != 'Success':
             raise Exception("Login failed with result %s" % result, confirm)
         self.is_authenticated = True
+        return result
 
     def logout(self):
         self.post(action='logout')
@@ -104,6 +103,7 @@ class MWApi:
         Arguments:
         params - Parameters to send to the API. Varies depending on the action to be performed. 
         """
+        kwparams['format'] = 'json'
         return self._request('GET', kwparams)
 
     def post(self, **kwparams):
@@ -112,4 +112,10 @@ class MWApi:
         Arguments:
         params - Parameters to send to the API. Varies depending on the action to be performed. 
         """
+        kwparams['format'] = 'json'
         return self._request('POST', data=kwparams)
+
+    def upload(self, **kwparams):
+        kwparams['format'] = 'json'
+        files = {'file': kwparams['file']}
+        return self._request('POST', data=kwparams, files=files)
