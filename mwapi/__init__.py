@@ -32,7 +32,6 @@ class MWApi:
         self.api_path = api_path
         self.api_url = host + api_path
         self.session = requests.session()
-        self.tokens = {}
         self.is_authenticated = False
     
     def _request(self, method, params=None, data=None, files=None):
@@ -94,10 +93,7 @@ class MWApi:
 
     def get_tokens(self, tokens="edit"):
         data = self.get(action="tokens", type=tokens)
-        self.tokens.update(data['tokens'])
-        if 'warnings' in data:
-            print data['warnings']['tokens']['*'] + '\n'
-        return self.tokens
+        return data['tokens']
 
 
     def get(self, **kwparams):
