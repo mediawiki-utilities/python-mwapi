@@ -94,7 +94,10 @@ class MWApi:
 
     def get_tokens(self, tokens="edit"):
         data = self.get(action="tokens", type=tokens)
-        return data['tokens']
+        self.tokens.update(data['tokens'])
+        if 'warnings' in data:
+            print data['warnings']['tokens']['*'] + '\n'
+        return self.tokens
 
 
     def get(self, **kwparams):
