@@ -32,7 +32,6 @@ class MWApi:
         self.api_path = api_path
         self.api_url = host + api_path
         self.session = requests.session()
-        self.tokens = {}
         self.is_authenticated = False
     
     def _request(self, method, params=None, data=None, files=None):
