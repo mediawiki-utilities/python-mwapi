@@ -21,3 +21,5 @@ Contributing
 from .session import Session
 
 MWApi = Session
+
+__version__ = "0.1.1"

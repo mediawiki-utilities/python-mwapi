@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
         name="python-mwapi",
-        version="0.1.1",
+        version="0.1.1", # Change in mwapi/__init__.py
         author="Yuvi Panda",
         author_email="yuvipanda@gmail.com",
         url="http://github.com/yuvipanda/python-mwapi",
