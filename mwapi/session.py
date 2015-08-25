@@ -1,4 +1,7 @@
 """
+Session
+=======
+
 Sessions encapsulate a a set of interactions with a MediaWiki API.
 :class:`~mwapi.session.session.Session` provides both a set of convenience
 functions (e.g. :func:`~mwapi.session.session.Session.get` and
