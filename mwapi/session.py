@@ -14,6 +14,7 @@ session call :func:`~mwapi.session.session.Session.get` and
 
     ..autodata:: mwapi.session.Session.is_authenticated
 """
+import requests
 
 
 class Session:
@@ -34,20 +35,15 @@ class Session:
         self.host = host
         self.api_path = api_path
         self.api_url = host + api_path
-        self.session = session or requests.session()
+        self.session = session or requests.Session()
         self.is_authenticated = False
         """
         `bool` : Is the session sending authenticated requests
         """
 
     def _request(self, method, params=None, data=None, files=None):
-        resp = self.session.request(
-                method,
-                self.api_url,
-                params=params,
-                data=data,
-                files=files,
-                stream=True)
+        resp = self.session.request(method, self.api_url, params=params,
+                                    data=data, files=files, stream=True)
         return resp.json()
 
     def login(self, username, password):
@@ -71,7 +67,8 @@ class Session:
         login = self.post(action="login", lgname=username, lgpassword=password)
 
         confirm = self.post(action="login", lgname=username,
-                            lgpassword=password, lgtoken=login['login']['token'])
+                            lgpassword=password,
+                            lgtoken=login['login']['token'])
 
         result = confirm['login']['result']
         if result != 'Success':
@@ -113,7 +110,6 @@ class Session:
         """
         data = self.get(action="tokens", type=tokens)
         return data['tokens']
-
 
     def get(self, **kwparams):
         """Makes an API request with the GET method

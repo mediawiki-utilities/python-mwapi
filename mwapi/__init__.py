@@ -18,7 +18,6 @@ Contributing
 ++++++++++++
 * Aaron Halfaker https://github.com/halfak
 """
-import requests
 from .session import Session
 
 MWApi = Session
