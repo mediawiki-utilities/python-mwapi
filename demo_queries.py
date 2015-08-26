@@ -26,10 +26,31 @@ session.login(input("Username: "), getpass.getpass("Password: "))
 print("whoami?")
 print("\t", session.get(action='query', meta='userinfo'), "\n")
 
+
+def query_revisions_by_revids(revids, batch=50, **params):
+
+    revids_iter = iter(revids)
+    while True:
+        batch_ids = list(islice(revids_iter, 0, batch))
+        if len(batch_ids) == 0:
+            break
+        else:
+            doc = session.post(action='query', prop='revisions',
+                               revids=batch_ids, **params)
+
+            for page_doc in doc['query'].get('pages', {}).values():
+                page_meta = {k: v for k, v in page_doc.items()
+                             if k != 'revisions'}
+                if 'revisions' in page_doc:
+                    for revision_doc in page_doc['revisions']:
+                        revision_doc['page'] = page_meta
+                        yield revision_doc
+
+
 def query_revisions(title=None, pageid=None, revids=None, batch=50, limit=50,
                     **params):
     if revids is not None:
-        return query_revisions_by_revid(revids, batch=batch, **params)
+        return query_revisions_by_revids(revids, batch=batch, **params)
     elif title is None and pageid is None:
         raise TypeError("query_revisions requires 'title', 'pageid' or " +
                         "'revids'")
@@ -57,30 +78,12 @@ def query_revisions(title=None, pageid=None, revids=None, batch=50, limit=50,
                     if yielded >= limit:
                         return
 
-def query_revisions_by_revids(revids, batch=50, **params):
-
-    revids_iter = iter(revids)
-    while True:
-        batch_ids = list(islice(revids_iter, 0, batch))
-        if len(batch_ids) == 0:
-            break
-        else:
-            doc = session.post(action='query', prop='revisions',
-                               revids=batch_ids, **params)
-
-            for page_doc in doc['query'].get('pages', {}).values():
-                page_meta = {k: v for k, v in page_doc.items()
-                                  if k != 'revisions'}
-                if 'revisions' in page_doc:
-                    for revision_doc in page_doc['revisions']:
-                        revision_doc['page'] = page_meta
-                        yield revision_doc
-
 print("Querying by title")
 rev_ids = []
 sys.stdout.write("\t ")
 for doc in query_revisions(title="User_talk:EpochFail", rvprop="ids", limit=5):
-    sys.stdout.write(".");sys.stdout.flush()
+    sys.stdout.write(".")
+    sys.stdout.flush()
     rev_ids.append(doc['revid'])
 sys.stdout.write("\n\n")
 

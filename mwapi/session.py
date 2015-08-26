@@ -48,7 +48,7 @@ class Session:
 
         try:
             doc = resp.json()
-        except ValueError as e:
+        except ValueError:
             raise ValueError("Could not decode as JSON:\n{0}"
                              .format(resp.text[:350]))
 

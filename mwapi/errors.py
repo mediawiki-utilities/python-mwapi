@@ -28,6 +28,7 @@ class APIError(RuntimeError):
             doc.get('*')
         )
 
+
 class LoginError(RuntimeError):
     """
     Thrown when an error occurs during login.
