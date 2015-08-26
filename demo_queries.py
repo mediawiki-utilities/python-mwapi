@@ -76,12 +76,12 @@ def query_revisions(title=None, pageid=None, revids=None, batch=50, limit=50,
                     yield revision_doc
                     yielded += 1
                     if yielded >= limit:
-                        return
+                        doc['batchcomplete'] = ""
 
 print("Querying by title")
 rev_ids = []
 sys.stdout.write("\t ")
-for doc in query_revisions(title="User_talk:EpochFail", rvprop="ids", limit=5):
+for doc in query_revisions(title="User_talk:EpochFail", rvprop="ids", limit=55):
     sys.stdout.write(".")
     sys.stdout.flush()
     rev_ids.append(doc['revid'])
