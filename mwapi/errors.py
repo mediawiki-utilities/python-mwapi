@@ -8,11 +8,13 @@ There's two types of errors.
 .. autoclass:: LoginError
 """
 
+
 class APIError(RuntimeError):
     """
     Thrown when the MediaWiki API returns an error.
     """
     pass
+
 
 class LoginError(APIError):
     """
