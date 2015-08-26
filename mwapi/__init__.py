@@ -13,6 +13,7 @@ convenience functions for calling the MediaWiki API -- for example,
 :License: MIT
 """
 from .session import Session
+from .errors import APIError, LoginError
 
 MWApi = Session
 
