@@ -47,13 +47,10 @@ def query_revisions_by_revids(revids, batch=50, **params):
                         yield revision_doc
 
 
-def query_revisions(title=None, pageid=None, revids=None, batch=50, limit=50,
+def query_revisions(title=None, pageid=None, batch=50, limit=50,
                     **params):
-    if revids is not None:
-        return query_revisions_by_revids(revids, batch=batch, **params)
-    elif title is None and pageid is None:
-        raise TypeError("query_revisions requires 'title', 'pageid' or " +
-                        "'revids'")
+    if title is None and pageid is None:
+        raise TypeError("query_revisions requires 'title' or 'pageid'")
 
     params.update({
         'titles': title,
