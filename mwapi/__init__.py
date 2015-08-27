@@ -13,7 +13,10 @@ convenience functions for calling the MediaWiki API -- for example,
 :License: MIT
 """
 from .session import Session
+from .errors import APIError, LoginError
 
 MWApi = Session
 
-__version__ = "0.1.1"
+__all__ = [MWApi, Session, APIError, LoginError]
+
+__version__ = "0.2.0"
