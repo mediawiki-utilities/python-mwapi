@@ -17,4 +17,6 @@ from .errors import APIError, LoginError
 
 MWApi = Session
 
+__all__ = [MWApi, Session, APIError, LoginError]
+
 __version__ = "0.2.0"
