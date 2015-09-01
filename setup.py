@@ -9,6 +9,6 @@ setup(
     packages=["mwapi"],
     license=open("LICENSE").read(),
     description="Simple wrapper for the Mediawiki API",
-    long_description=open("README").read(),
+    long_description=open("README.md").read(),
     install_requires=["requests"]
 )
