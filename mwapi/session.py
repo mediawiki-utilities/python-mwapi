@@ -12,10 +12,8 @@ can also maintain a logged-in connection to the API by using
 session call :func:`~mwapi.session.session.Session.get` and
 :func:`~mwapi.session.session.Session.post` afterwards.
 
-.. autoclass:: mwapi.session.Session
+.. autoclass:: mwapi.Session
     :members:
-
-    ..autodata:: mwapi.session.Session.is_authenticated
 """
 import requests
 
