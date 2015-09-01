@@ -1,12 +1,12 @@
-# Python Mediawiki API
+# Mediawiki API
 
-This library provides a very simple convenience wrapper around the [Mediawiki API](http://www.mediawiki.org/wiki/API).
-
-The library allows you to call Mediawiki APIs without having to deal with network calls. It also has authentication support and a few convenience methods.
+This MIT Licensed library provides a very simple convenience wrapper 
+around the [Mediawiki API](http://www.mediawiki.org/wiki/API). and 
+includes support for authenticated sessions.
 
 See http://pythonhosted.org/mwapi for complete documentation.
 
-## Example
+## Example usage
 
     >>> import mwapi
     >>>

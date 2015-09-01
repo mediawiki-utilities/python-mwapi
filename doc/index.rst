@@ -19,8 +19,8 @@ Contents
 
 Authors
 -------
-* YuviPanda https://github.com/yuvipanda
-* Aaron Halfaker https://github.com/halfak
+* YuviPanda -- https://github.com/yuvipanda
+* Aaron Halfaker -- https://github.com/halfak
 
 .. code::
 
