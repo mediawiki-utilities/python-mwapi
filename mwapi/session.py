@@ -17,9 +17,15 @@ session call :func:`~mwapi.session.session.Session.get` and
 
     ..autodata:: mwapi.session.Session.is_authenticated
 """
+import logging
+
 import requests
 
 from .errors import APIError, LoginError
+
+DEFAULT_USERAGENT = "mwapi (python) -- default user-agent"
+
+logger = logging.getLogger(__name__)
 
 
 class Session:
@@ -30,21 +36,36 @@ class Session:
         host : `str`
             Host to which to connect to. Must include http:// or https:// and
             no trailing "/".
+        user_agent : `str`
+            The User-Agent header to include with all requests.  Use this field
+            to identify your script/bot/application to system admins of the
+            MediaWiki API you are using.
         api_path : `str`
             The path to "api.php" on the server -- must begin with "/".
         session : `requests.Session`
             (optional) a `requests` session object to use
     """
 
-    def __init__(self, host, api_path="/w/api.php", session=None):
+    def __init__(self, host, *, user_agent=None, api_path="/w/api.php",
+                 session=None):
         self.host = host
         self.api_path = api_path
         self.api_url = host + api_path
         self.session = session or requests.Session()
+        self.headers = {}
+
+        if user_agent is None:
+            logger.warning("Sending requests with default User-Agent.  " +
+                           "Set 'user_agent' on mwapi.Session to quiet this " +
+                           "message.")
+            self.headers['User-Agent'] = DEFAULT_USERAGENT
+        else:
+            self.headers['User-Agent'] = user_agent
 
     def _request(self, method, params=None, data=None, files=None):
         resp = self.session.request(method, self.api_url, params=params,
-                                    data=data, files=files, stream=True)
+                                    data=data, files=files,
+                                    headers=self.headers, stream=True)
 
         try:
             doc = resp.json()

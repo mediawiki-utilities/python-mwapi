@@ -5,6 +5,7 @@ Query demonstrations
 This script demonstrates interesting use of the `mwapi` library to login and
 query English Wikipedia's MediaWiki API.  Here's the basic flow:
 
+0. Create session with user-agent
 1. Log in
 2. Confirm logged-in status
 3. Query for the last 5 revisions of User_talk:EpochFail
@@ -18,7 +19,8 @@ from itertools import islice
 
 import mwapi
 
-session = mwapi.Session('https://en.wikipedia.org')
+my_agent = 'mwapi demo script <ahalfaker@wikimedia.org>'
+session = mwapi.Session('https://en.wikipedia.org',  user_agent=my_agent)
 
 print("Logging into English Wikipedia")
 session.login(input("Username: "), getpass.getpass("Password: "))
