@@ -46,7 +46,7 @@ class Session:
             (optional) a `requests` session object to use
     """
 
-    def __init__(self, host, *, user_agent=None, api_path="/w/api.php",
+    def __init__(self, host, user_agent=None, api_path="/w/api.php",
                  session=None):
         self.host = host
         self.api_path = api_path
