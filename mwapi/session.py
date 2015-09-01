@@ -30,7 +30,7 @@ class Session:
         host : `str`
             Host to which to connect to. Must include http:// or https:// and
             no trailing "/".
-        api_path : `str
+        api_path : `str`
             The path to "api.php" on the server -- must begin with "/".
         session : `requests.Session`
             (optional) a `requests` session object to use
@@ -97,7 +97,9 @@ class Session:
         """Makes an API request with the GET method
 
         :Parameters:
-            **kwparams : dict
+            query_continue : `dict`
+                Optionally, the value of a query continuation 'continue' field.
+            params :
                 Keyword parameters to be sent in the query string.
         """
         return self._request('GET', self._normalize_params(params))
@@ -106,10 +108,12 @@ class Session:
         """Makes an API request with the POST method
 
         :Parameters:
-            **params : dict
-                Keyword parameters to be sent in the POST message body.
+            query_continue : `dict`
+                Optionally, the value of a query continuation 'continue' field.
             upload_file : `bytes`
                 The bytes of a file to upload.
+            params :
+                Keyword parameters to be sent in the POST message body.
         """
 
         kwargs = {'data': self._normalize_params(params)}
