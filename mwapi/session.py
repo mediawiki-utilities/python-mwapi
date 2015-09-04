@@ -3,14 +3,13 @@ Session
 =======
 
 Sessions encapsulate a a set of interactions with a MediaWiki API.
-:class:`~mwapi.session.session.Session` provides both a set of convenience
-functions (e.g. :func:`~mwapi.session.session.Session.get` and
-:func:`~mwapi.session.session.Session.post`) that automatically convert
-parameters and handle error code responses and raise them as exceptions.  You
-can also maintain a logged-in connection to the API by using
-:func:`~mwapi.session.session.Session.login` to authenticate and using the same
-session call :func:`~mwapi.session.session.Session.get` and
-:func:`~mwapi.session.session.Session.post` afterwards.
+:class:`mwapi.Session` provides both a set of convenience functions (e.g.
+:func:`~mwapi.Session.get` and :func:`~mwapi.Session.post`) that
+automatically convert parameters and handle error code responses and raise
+them as exceptions.  You can also maintain a logged-in connection to the
+API by using :func:`~mwapi.Session.login` to authenticate and using the
+same session call :func:`~mwapi.Session.get` and :func:`~mwapi.Session.post`
+afterwards.
 
 .. autoclass:: mwapi.Session
     :members:
@@ -71,7 +70,8 @@ class Session:
                 The password of the user to be authenticated
 
         :Raises:
-            :class`~mwapi.errors.LoginError` : if authentication fails
+            :class:`mwapi.errors.LoginError` : if authentication fails
+            :class:`mwapi.errors.APIError` : if the API responds with an error
         """
         token_doc = self.post(action="login", lgname=username,
                               lgpassword=password)
@@ -88,6 +88,9 @@ class Session:
     def logout(self):
         """
         Logs out of the session with MediaWiki
+
+        :Raises:
+            :class:`mwapi.errors.APIError` : if the API responds with an error
         """
         self.post(action='logout')
 
@@ -99,6 +102,9 @@ class Session:
                 Optionally, the value of a query continuation 'continue' field.
             params :
                 Keyword parameters to be sent in the query string.
+
+        :Raises:
+            :class:`mwapi.errors.APIError` : if the API responds with an error
         """
         return self._request('GET', self._normalize_params(params))
 
@@ -112,6 +118,9 @@ class Session:
                 The bytes of a file to upload.
             params :
                 Keyword parameters to be sent in the POST message body.
+
+        :Raises:
+            :class:`mwapi.errors.APIError` : if the API responds with an error
         """
 
         kwargs = {'data': self._normalize_params(params)}
