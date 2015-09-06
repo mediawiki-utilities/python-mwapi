@@ -1,7 +1,6 @@
 """
 Errors
 ======
-There's two types of errors.
 
 .. autoclass:: APIError
 
