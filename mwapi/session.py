@@ -82,7 +82,7 @@ class Session:
             raise HTTPError(str(e))
         except requests.exceptions.TooManyRedirects as e:
             raise TooManyRedirectsError(str(e))
-        except requests.exceptions.RequestError as e:
+        except requests.exceptions.RequestException as e:
             raise RequestError(str(e))
         except Exception as e:
             raise RequestError(str(e))
