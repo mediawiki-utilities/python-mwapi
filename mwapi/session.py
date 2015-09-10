@@ -51,11 +51,11 @@ class Session:
             (optional) a `requests` session object to use
     """
 
-    def __init__(self, host, user_agent=None, api_path="/w/api.php",
+    def __init__(self, host, user_agent=None, api_path=None,
                  timeout=None, session=None):
-        self.host = host
-        self.api_path = api_path
-        self.api_url = host + api_path
+        self.host = str(host)
+        self.api_path = str(api_path or "/w/api.php")
+        self.api_url = self.host + self.api_path
         self.timeout = float(timeout) if timeout is not None else None
         self.session = session or requests.Session()
         self.headers = {}
