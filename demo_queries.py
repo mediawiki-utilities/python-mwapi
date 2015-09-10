@@ -18,6 +18,7 @@ import sys
 from itertools import islice
 
 import mwapi
+import mwapi.errors
 
 my_agent = 'mwapi demo script <ahalfaker@wikimedia.org>'
 session = mwapi.Session('https://en.wikipedia.org',  user_agent=my_agent)
@@ -94,7 +95,7 @@ print("")
 print("Query with an error")
 try:
     session.get(action="query", prop="revisions", revids=[123523], rvlimit=2)
-except mwapi.APIError as e:
+except mwapi.errors.APIError as e:
     print("\t", "An APIError was caught.")
     print("\t", e)
 print("")

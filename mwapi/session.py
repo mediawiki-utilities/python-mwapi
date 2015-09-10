@@ -75,17 +75,17 @@ class Session:
                                         timeout=self.timeout, headers=self.headers,
                                         stream=True)
         except requests.exceptions.Timeout as e:
-            raise TimeoutError(str(e))
+            raise TimeoutError(str(e)) from e
         except requests.exceptions.ConnectionError as e:
-            raise ConnectionError(str(e))
+            raise ConnectionError(str(e)) from e
         except requests.exceptions.HTTPError as e:
-            raise HTTPError(str(e))
+            raise HTTPError(str(e)) from e
         except requests.exceptions.TooManyRedirects as e:
-            raise TooManyRedirectsError(str(e))
+            raise TooManyRedirectsError(str(e)) from e
         except requests.exceptions.RequestException as e:
-            raise RequestError(str(e))
+            raise RequestError(str(e)) from e
         except Exception as e:
-            raise RequestError(str(e))
+            raise RequestError(str(e)) from e
 
         try:
             doc = resp.json()
