@@ -17,8 +17,10 @@ afterwards.
 import logging
 
 import requests
+import requests.exceptions
 
-from .errors import APIError, LoginError
+from .errors import (APIError, ConnectionError, HTTPError, LoginError,
+                     RequestError, TimeoutError, TooManyRedirectsError)
 
 DEFAULT_USERAGENT = "mwapi (python) -- default user-agent"
 
@@ -39,15 +41,22 @@ class Session:
             MediaWiki API you are using.
         api_path : `str`
             The path to "api.php" on the server -- must begin with "/".
+        timeout : `float`
+            How long to wait for the server to send data before giving up
+            and raising an error (:class:`requests.exceptions.Timeout`,
+            :class:`requests.exceptions.ReadTimeout` or
+            :class:`requests.exceptions.ConnectTimeout`).  The default behavior
+            is to hang indefinitely.
         session : `requests.Session`
             (optional) a `requests` session object to use
     """
 
     def __init__(self, host, user_agent=None, api_path="/w/api.php",
-                 session=None):
+                 timeout=None, session=None):
         self.host = host
         self.api_path = api_path
         self.api_url = host + api_path
+        self.timeout = float(timeout) if timeout is not None else None
         self.session = session or requests.Session()
         self.headers = {}
 
@@ -60,15 +69,33 @@ class Session:
             self.headers['User-Agent'] = user_agent
 
     def _request(self, method, params=None, data=None, files=None):
-        resp = self.session.request(method, self.api_url, params=params,
-                                    data=data, files=files,
-                                    headers=self.headers, stream=True)
+        try:
+            resp = self.session.request(method, self.api_url, params=params,
+                                        data=data, files=files,
+                                        timeout=self.timeout, headers=self.headers,
+                                        stream=True)
+        except requests.exceptions.Timeout as e:
+            raise TimeoutError(str(e))
+        except requests.exceptions.ConnectionError as e:
+            raise ConnectionError(str(e))
+        except requests.exceptions.HTTPError as e:
+            raise HTTPError(str(e))
+        except requests.exceptions.TooManyRedirects as e:
+            raise TooManyRedirectsError(str(e))
+        except requests.exceptions.RequestError as e:
+            raise RequestError(str(e))
+        except Exception as e:
+            raise RequestError(str(e))
 
         try:
             doc = resp.json()
         except ValueError:
+            if resp is None:
+                prefix = "No response data"
+            else:
+                prefix = resp.text[:350]
             raise ValueError("Could not decode as JSON:\n{0}"
-                             .format(resp.text[:350]))
+                             .format(prefix))
 
         if 'error' in doc:
             raise APIError.from_doc(doc['error'])
