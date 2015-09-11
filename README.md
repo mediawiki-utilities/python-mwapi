@@ -1,4 +1,4 @@
-# Mediawiki API
+# MediaWiki API
 
 This MIT Licensed library provides a very simple convenience wrapper 
 around the [MediaWiki API](http://www.mediawiki.org/wiki/API). and 
