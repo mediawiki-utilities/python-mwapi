@@ -1,7 +1,7 @@
 # Mediawiki API
 
 This MIT Licensed library provides a very simple convenience wrapper 
-around the [Mediawiki API](http://www.mediawiki.org/wiki/API). and 
+around the [MediaWiki API](http://www.mediawiki.org/wiki/API). and 
 includes support for authenticated sessions.
 
 See http://pythonhosted.org/mwapi for complete documentation.
