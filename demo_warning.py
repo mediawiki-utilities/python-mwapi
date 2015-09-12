@@ -1,5 +1,3 @@
-import getpass
-
 import mwapi
 import mwapi.errors
 
