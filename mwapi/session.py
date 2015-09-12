@@ -99,8 +99,14 @@ class Session:
 
         if 'error' in doc:
             raise APIError.from_doc(doc['error'])
-        else:
-            return doc
+
+        if 'warnings' in doc:
+            logger.warning("The following query raised warnings: {0}"
+                           .format(params or data))
+            for module, warning in doc['warnings'].items():
+                logger.warning("\t- {0} -- {1}"
+                               .format(module, warning))
+        return doc
 
     def login(self, username, password):
         """
