@@ -5,16 +5,19 @@ around the [MediaWiki API](http://www.mediawiki.org/wiki/API). and
 includes support for authenticated sessions. It requires Python 3
 and that your wiki is using MediaWiki 1.15.3 or greater.
 
-See http://pythonhosted.org/mwapi for complete documentation.
+* **Installation:** ``pip install mwapi``
+* **Documentation:** https://pythonhosted.org/mwapi
+* **Repositiory:** https://github.com/mediawiki-utilities/python-mwapi
+* **License:** MIT
 
-## Example usage
+## Example
 
     >>> import mwapi
     >>>
     >>> session = mwapi.Session('https://en.wikipedia.org')
     >>>
     >>> print(session.get(action='query', meta='userinfo'))
-    {'query': {'userinfo': {'anon': '', 'name': '127.0.0.1', 'id': 0}},
+    {'query': {'userinfo': {'anon': '', 'name': '75.72.203.28', 'id': 0}},
      'batchcomplete': ''}
     >>>
     >>> print(session.get(action='query', prop='revisions', revids=32423425))
