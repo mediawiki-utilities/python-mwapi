@@ -9,9 +9,10 @@ convenience functions for calling the MediaWiki API -- for example,
 :func:`~mwapi.Session.get`, :func:`~mwapi.Session.post`, and
 :func:`~mwapi.Session.login`.
 
-Installation: ``pip install mwapi``
-
-Repository: https://github.com/yuvipanda/python-mwapi
+* **Installation:** ``pip install mwapi``
+* **Documentation:** https://pythonhosted.org/mwapi
+* **Repositiory:** https://github.com/mediawiki-utilities/python-mwapi
+* **License:** MIT
 
 Contents
 --------
