@@ -78,7 +78,6 @@ class Session:
             params = params or {}
             params['format'] = "json"
 
-
         try:
             resp = self.session.request(method, self.api_url, params=params,
                                         data=data, files=files,
@@ -132,15 +131,50 @@ class Session:
                 A set of parameters to send with the request.  These parameters
                 will be included in the POST body for post requests or a query
                 string otherwise.
+            query_continue : `dict`
+                A 'continue' field from a past request.  This field represents
+                the point from which a query should be continued.
+            files : `dict`
+                A dictionary of (filename : `str`, data : `bytes`) pairs to
+                send with the request.
             continuation : `bool`
                 If true, a continuation will be attempted and a generator of
                 JSON response documents will be returned.
+
+        :Returns:
+            A response JSON documents (or a generator of documents if
+            `continuation == True`)
         """
         normal_params = _normalize_params(params, query_continue)
         if continuation:
             return self._continuation(method, params=normal_params, files=files)
         else:
             return self._request(method, params=normal_params, files=files)
+
+    def continuation(self, method, params=None, query_continue=None,
+                     files=None):
+        """
+        Makes a request and, if the response calls for a continuation,
+        performs that continuation.
+
+        :Parameters:
+            method : `str`
+                Which HTTP method to use for the request?
+                (Usually "POST" or "GET")
+            params : `dict`
+                A set of parameters to send with the request.  These parameters
+                will be included in the POST body for post requests or a query
+                string otherwise.
+            files : `dict`
+                A dictionary of (filename : `str`, data : `bytes`) pairs to
+                send with the initial request.
+            query_continue : `dict`
+                A 'continue' field from a past request.  This field represents
+                the point from which a query should be continued.
+
+        :Returns:
+            A generator of response JSON documents.
+        """
 
     def _continuation(self, method, params=None, files=None):
         if 'continue' not in params:
@@ -153,6 +187,7 @@ class Session:
                 break
             # re-send all continue values in the next call
             params.update(doc['continue'])
+            files = None  # Don't send files again
 
     def login(self, username, password):
         """
