@@ -241,6 +241,10 @@ class Session:
             params :
                 Keyword parameters to be sent in the query string.
 
+        :Returns:
+            A response JSON documents (or a generator of documents if
+            `continuation == True`)
+
         :Raises:
             :class:`mwapi.errors.APIError` : if the API responds with an error
         """
@@ -263,6 +267,10 @@ class Session:
                 JSON response documents will be returned.
             params :
                 Keyword parameters to be sent in the POST message body.
+
+        :Returns:
+            A response JSON documents (or a generator of documents if
+            `continuation == True`)
 
         :Raises:
             :class:`mwapi.errors.APIError` : if the API responds with an error
