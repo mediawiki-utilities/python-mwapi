@@ -52,12 +52,15 @@ class Session:
     """
 
     def __init__(self, host, user_agent=None, api_path=None,
-                 timeout=None, session=None):
+                 timeout=None, session=None, **session_params):
         self.host = str(host)
         self.api_path = str(api_path or "/w/api.php")
         self.api_url = self.host + self.api_path
         self.timeout = float(timeout) if timeout is not None else None
         self.session = session or requests.Session()
+        for key, value in session_params.items():
+            setattr(self.session, key, value)
+
         self.headers = {}
 
         if user_agent is None:
@@ -83,6 +86,7 @@ class Session:
                                         data=data, files=files,
                                         timeout=self.timeout,
                                         headers=self.headers,
+                                        verify=True,
                                         stream=True)
         except requests.exceptions.Timeout as e:
             raise TimeoutError(str(e)) from e
