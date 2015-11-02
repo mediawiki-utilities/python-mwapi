@@ -68,11 +68,21 @@ class Session:
         else:
             self.headers['User-Agent'] = user_agent
 
-    def _request(self, method, params=None, data=None, files=None):
+    def _request(self, method, params=None, files=None):
+        if method.lower() == "post":
+            data = params
+            data['format'] = "json"
+            params = None
+        else:
+            data = None
+            params = params or {}
+            params['format'] = "json"
+
         try:
             resp = self.session.request(method, self.api_url, params=params,
                                         data=data, files=files,
-                                        timeout=self.timeout, headers=self.headers,
+                                        timeout=self.timeout,
+                                        headers=self.headers,
                                         stream=True)
         except requests.exceptions.Timeout as e:
             raise TimeoutError(str(e)) from e
@@ -107,6 +117,77 @@ class Session:
                 logger.warning("\t- {0} -- {1}"
                                .format(module, warning))
         return doc
+
+    def request(self, method, params=None, query_continue=None,
+                files=None, continuation=False):
+        """
+        Sends an HTTP request to the API.
+
+        :Parameters:
+            method : `str`
+                Which HTTP method to use for the request?
+                (Usually "POST" or "GET")
+            params : `dict`
+                A set of parameters to send with the request.  These parameters
+                will be included in the POST body for post requests or a query
+                string otherwise.
+            query_continue : `dict`
+                A 'continue' field from a past request.  This field represents
+                the point from which a query should be continued.
+            files : `dict`
+                A dictionary of (filename : `str`, data : `bytes`) pairs to
+                send with the request.
+            continuation : `bool`
+                If true, a continuation will be attempted and a generator of
+                JSON response documents will be returned.
+
+        :Returns:
+            A response JSON documents (or a generator of documents if
+            `continuation == True`)
+        """
+        normal_params = _normalize_params(params, query_continue)
+        if continuation:
+            return self._continuation(method, params=normal_params, files=files)
+        else:
+            return self._request(method, params=normal_params, files=files)
+
+    def continuation(self, method, params=None, query_continue=None,
+                     files=None):
+        """
+        Makes a request and, if the response calls for a continuation,
+        performs that continuation.
+
+        :Parameters:
+            method : `str`
+                Which HTTP method to use for the request?
+                (Usually "POST" or "GET")
+            params : `dict`
+                A set of parameters to send with the request.  These parameters
+                will be included in the POST body for post requests or a query
+                string otherwise.
+            files : `dict`
+                A dictionary of (filename : `str`, data : `bytes`) pairs to
+                send with the initial request.
+            query_continue : `dict`
+                A 'continue' field from a past request.  This field represents
+                the point from which a query should be continued.
+
+        :Returns:
+            A generator of response JSON documents.
+        """
+
+    def _continuation(self, method, params=None, files=None):
+        if 'continue' not in params:
+            params['continue'] = ''
+
+        while True:
+            doc = self._request(method, params=params, files=files)
+            yield doc
+            if 'continue' not in doc:
+                break
+            # re-send all continue values in the next call
+            params.update(doc['continue'])
+            files = None  # Don't send files again
 
     def login(self, username, password):
         """
@@ -148,21 +229,32 @@ class Session:
         """
         self.post(action='logout')
 
-    def get(self, query_continue=None, **params):
+    def get(self, query_continue=None, continuation=False, **params):
         """Makes an API request with the GET method
 
         :Parameters:
             query_continue : `dict`
                 Optionally, the value of a query continuation 'continue' field.
+            continuation : `bool`
+                If true, a continuation will be attempted and a generator of
+                JSON response documents will be returned.
             params :
                 Keyword parameters to be sent in the query string.
+
+        :Returns:
+            A response JSON documents (or a generator of documents if
+            `continuation == True`)
 
         :Raises:
             :class:`mwapi.errors.APIError` : if the API responds with an error
         """
-        return self._request('GET', self._normalize_params(params))
 
-    def post(self, query_continue=None, upload_file=None, **params):
+        return self.request('GET', params=params,
+                            query_continue=query_continue,
+                            continuation=continuation)
+
+    def post(self, query_continue=None, upload_file=None, continuation=False,
+             **params):
         """Makes an API request with the POST method
 
         :Parameters:
@@ -170,29 +262,42 @@ class Session:
                 Optionally, the value of a query continuation 'continue' field.
             upload_file : `bytes`
                 The bytes of a file to upload.
+            continuation : `bool`
+                If true, a continuation will be attempted and a generator of
+                JSON response documents will be returned.
             params :
                 Keyword parameters to be sent in the POST message body.
+
+        :Returns:
+            A response JSON documents (or a generator of documents if
+            `continuation == True`)
 
         :Raises:
             :class:`mwapi.errors.APIError` : if the API responds with an error
         """
-
-        kwargs = {'data': self._normalize_params(params)}
         if upload_file is not None:
-            kwargs['files'] = {'file': upload_file}
+            files = {'file': upload_file}
+        else:
+            files = None
 
-        return self._request('POST', **kwargs)
+        return self.request('POST', params=params,
+                            query_continue=query_continue, files=files,
+                            continuation=continuation)
 
-    def _normalize_params(self, params, query_continue=None):
-        for key, value in params.items():
-            if isinstance(value, str):
-                pass
-            elif hasattr(value, "__iter__"):
-                params[key] = "|".join(str(v) for v in value)
 
-        if query_continue is not None:
-            params.update(query_continue)
+def _normalize_value(value):
+    if isinstance(value, str):
+        return value
+    elif hasattr(value, "__iter__"):
+        return "|".join(str(v) for v in value)
+    else:
+        return value
 
-        params['format'] = 'json'
 
-        return params
+def _normalize_params(params, query_continue=None):
+    normal_params = {k: _normalize_value(v) for k, v in params.items()}
+
+    if query_continue is not None:
+        normal_params.update(query_continue)
+
+    return normal_params

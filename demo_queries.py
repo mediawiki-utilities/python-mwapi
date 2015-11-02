@@ -61,13 +61,11 @@ def query_revisions(title=None, pageid=None, batch=50, limit=50,
     })
 
     yielded = 0
-    doc = None
-    while doc is None or 'batchcomplete' not in doc:
-        doc = session.post(action='query', prop='revisions',
-                           rvlimit=min(batch, limit - yielded),
-                           query_continue=(doc or {}).get('continue'),
-                           **params)
-
+    response_docs = session.post(action='query', prop='revisions',
+                                 rvlimit=min(batch, limit),
+                                 continuation=True,
+                                 **params)
+    for doc in response_docs:
         for page_doc in doc['query'].get('pages', {}).values():
             page_meta = {k: v for k, v in page_doc.items() if k != 'revisions'}
             if 'revisions' in page_doc:
@@ -76,12 +74,16 @@ def query_revisions(title=None, pageid=None, batch=50, limit=50,
                     yield revision_doc
                     yielded += 1
                     if yielded >= limit:
-                        doc['batchcomplete'] = ""
+                        break
+            if yielded >= limit:
+                break
+        if yielded >= limit:
+            break
 
 print("Querying by title")
 rev_ids = []
 sys.stdout.write("\t ")
-for doc in query_revisions(title="User_talk:EpochFail", rvprop="ids", limit=55):
+for doc in query_revisions(title="User_talk:EpochFail", rvprop="ids", limit=70):
     sys.stdout.write(".")
     sys.stdout.flush()
     rev_ids.append(doc['revid'])
