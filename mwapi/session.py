@@ -52,12 +52,15 @@ class Session:
     """
 
     def __init__(self, host, user_agent=None, api_path=None,
-                 timeout=None, session=None):
+                 timeout=None, session=None, **session_params):
         self.host = str(host)
         self.api_path = str(api_path or "/w/api.php")
         self.api_url = self.host + self.api_path
         self.timeout = float(timeout) if timeout is not None else None
         self.session = session or requests.Session()
+        for key, value in session_params.items():
+            setattr(self.session, key, value)
+
         self.headers = {}
 
         if user_agent is None:
@@ -68,7 +71,7 @@ class Session:
         else:
             self.headers['User-Agent'] = user_agent
 
-    def _request(self, method, params=None, files=None):
+    def _request(self, method, params=None, files=None, auth=None):
         if method.lower() == "post":
             data = params
             data['format'] = "json"
@@ -83,7 +86,9 @@ class Session:
                                         data=data, files=files,
                                         timeout=self.timeout,
                                         headers=self.headers,
-                                        stream=True)
+                                        verify=True,
+                                        stream=True,
+                                        auth=auth)
         except requests.exceptions.Timeout as e:
             raise TimeoutError(str(e)) from e
         except requests.exceptions.ConnectionError as e:
@@ -119,7 +124,7 @@ class Session:
         return doc
 
     def request(self, method, params=None, query_continue=None,
-                files=None, continuation=False):
+                files=None, auth=None, continuation=False):
         """
         Sends an HTTP request to the API.
 
@@ -137,6 +142,8 @@ class Session:
             files : `dict`
                 A dictionary of (filename : `str`, data : `bytes`) pairs to
                 send with the request.
+            auth : mixed
+                Auth tuple or callable to enable Basic/Digest/Custom HTTP Auth.
             continuation : `bool`
                 If true, a continuation will be attempted and a generator of
                 JSON response documents will be returned.
@@ -147,12 +154,14 @@ class Session:
         """
         normal_params = _normalize_params(params, query_continue)
         if continuation:
-            return self._continuation(method, params=normal_params, files=files)
+            return self._continuation(method, params=normal_params, auth=auth,
+                                      files=files)
         else:
-            return self._request(method, params=normal_params, files=files)
+            return self._request(method, params=normal_params, auth=auth,
+                                 files=files)
 
     def continuation(self, method, params=None, query_continue=None,
-                     files=None):
+                     auth=None, files=None):
         """
         Makes a request and, if the response calls for a continuation,
         performs that continuation.
@@ -168,6 +177,8 @@ class Session:
             files : `dict`
                 A dictionary of (filename : `str`, data : `bytes`) pairs to
                 send with the initial request.
+            auth : mixed
+                Auth tuple or callable to enable Basic/Digest/Custom HTTP Auth.
             query_continue : `dict`
                 A 'continue' field from a past request.  This field represents
                 the point from which a query should be continued.
@@ -176,12 +187,12 @@ class Session:
             A generator of response JSON documents.
         """
 
-    def _continuation(self, method, params=None, files=None):
+    def _continuation(self, method, params=None, files=None, auth=None):
         if 'continue' not in params:
             params['continue'] = ''
 
         while True:
-            doc = self._request(method, params=params, files=files)
+            doc = self._request(method, params=params, files=files, auth=None)
             yield doc
             if 'continue' not in doc:
                 break
@@ -229,12 +240,15 @@ class Session:
         """
         self.post(action='logout')
 
-    def get(self, query_continue=None, continuation=False, **params):
+    def get(self, query_continue=None, auth=None, continuation=False,
+            **params):
         """Makes an API request with the GET method
 
         :Parameters:
             query_continue : `dict`
                 Optionally, the value of a query continuation 'continue' field.
+            auth : mixed
+                Auth tuple or callable to enable Basic/Digest/Custom HTTP Auth.
             continuation : `bool`
                 If true, a continuation will be attempted and a generator of
                 JSON response documents will be returned.
@@ -249,12 +263,12 @@ class Session:
             :class:`mwapi.errors.APIError` : if the API responds with an error
         """
 
-        return self.request('GET', params=params,
+        return self.request('GET', params=params, auth=auth,
                             query_continue=query_continue,
                             continuation=continuation)
 
-    def post(self, query_continue=None, upload_file=None, continuation=False,
-             **params):
+    def post(self, query_continue=None, upload_file=None, auth=None,
+             continuation=False, **params):
         """Makes an API request with the POST method
 
         :Parameters:
@@ -262,6 +276,8 @@ class Session:
                 Optionally, the value of a query continuation 'continue' field.
             upload_file : `bytes`
                 The bytes of a file to upload.
+            auth : mixed
+                Auth tuple or callable to enable Basic/Digest/Custom HTTP Auth.
             continuation : `bool`
                 If true, a continuation will be attempted and a generator of
                 JSON response documents will be returned.
@@ -280,7 +296,7 @@ class Session:
         else:
             files = None
 
-        return self.request('POST', params=params,
+        return self.request('POST', params=params, auth=auth,
                             query_continue=query_continue, files=files,
                             continuation=continuation)
 
