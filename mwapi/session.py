@@ -39,6 +39,8 @@ class Session:
             The User-Agent header to include with all requests.  Use this field
             to identify your script/bot/application to system admins of the
             MediaWiki API you are using.
+        formatversion : int
+            The formatversion to supply to the API for all requests.
         api_path : `str`
             The path to "api.php" on the server -- must begin with "/".
         timeout : `float`
@@ -51,9 +53,12 @@ class Session:
             (optional) a `requests` session object to use
     """
 
-    def __init__(self, host, user_agent=None, api_path=None,
+    def __init__(self, host, user_agent=None, formatversion=None,
+                 api_path=None,
                  timeout=None, session=None, **session_params):
         self.host = str(host)
+        self.formatversion = int(formatversion) if formatversion is not None \
+                             else None
         self.api_path = str(api_path or "/w/api.php")
         self.api_url = self.host + self.api_path
         self.timeout = float(timeout) if timeout is not None else None
@@ -72,6 +77,10 @@ class Session:
             self.headers['User-Agent'] = user_agent
 
     def _request(self, method, params=None, files=None, auth=None):
+        params = params or {}
+        if self.formatversion is not None:
+            params['formatversion'] = self.formatversion
+
         if method.lower() == "post":
             data = params
             data['format'] = "json"
