@@ -2,6 +2,10 @@
 __pycache__/
 *.py[cod]
 
+# Secret data
+config.py
+
+
 # Temporary text editor files
 *~
 
