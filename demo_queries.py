@@ -21,7 +21,9 @@ import mwapi
 import mwapi.errors
 
 my_agent = 'mwapi demo script <ahalfaker@wikimedia.org>'
-session = mwapi.Session('https://en.wikipedia.org',  user_agent=my_agent)
+session = mwapi.Session('https://en.wikipedia.org',
+                        formatversion=2,
+                        user_agent=my_agent)
 
 print("Logging into English Wikipedia")
 session.login(input("Username: "), getpass.getpass("Password: "))
@@ -41,7 +43,7 @@ def query_revisions_by_revids(revids, batch=50, **params):
             doc = session.post(action='query', prop='revisions',
                                revids=batch_ids, **params)
 
-            for page_doc in doc['query'].get('pages', {}).values():
+            for page_doc in doc['query']['pages']:
                 page_meta = {k: v for k, v in page_doc.items()
                              if k != 'revisions'}
                 if 'revisions' in page_doc:
@@ -66,7 +68,7 @@ def query_revisions(title=None, pageid=None, batch=50, limit=50,
                                  continuation=True,
                                  **params)
     for doc in response_docs:
-        for page_doc in doc['query'].get('pages', {}).values():
+        for page_doc in doc['query']['pages']:
             page_meta = {k: v for k, v in page_doc.items() if k != 'revisions'}
             if 'revisions' in page_doc:
                 for revision_doc in page_doc['revisions']:
