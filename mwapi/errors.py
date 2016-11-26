@@ -47,7 +47,23 @@ class LoginError(RuntimeError):
 
     @classmethod
     def from_doc(cls, doc):
-        return cls(doc.get('result'))
+        return cls(doc.get('status'))
+
+
+class ClientInteractionRequest(RuntimeError):
+    """
+    Thrown when user input is needed to log in.
+    """
+
+    def __init__(self, login_token, message, requests):
+        super().__init__((login_token, message, requests))
+        self.login_token = login_token
+        self.message = message
+        self.requests = requests
+
+    @classmethod
+    def from_doc(cls, login_token, doc):
+        return cls(login_token, doc.get('message'), doc.get('requests', []))
 
 
 class RequestError(requests.exceptions.RequestException):

@@ -19,8 +19,9 @@ import logging
 import requests
 import requests.exceptions
 
-from .errors import (APIError, ConnectionError, HTTPError, LoginError,
-                     RequestError, TimeoutError, TooManyRedirectsError)
+from .errors import (APIError, ClientInteractionRequest, ConnectionError,
+                     HTTPError, LoginError, RequestError, TimeoutError,
+                     TooManyRedirectsError)
 
 DEFAULT_USERAGENT = "mwapi (python) -- default user-agent"
 
@@ -57,8 +58,8 @@ class Session:
                  api_path=None,
                  timeout=None, session=None, **session_params):
         self.host = str(host)
-        self.formatversion = int(formatversion) if formatversion is not None \
-                             else None
+        self.formatversion = int(formatversion) \
+                             if formatversion is not None else None
         self.api_path = str(api_path or "/w/api.php")
         self.api_url = self.host + self.api_path
         self.timeout = float(timeout) if timeout is not None else None
@@ -209,7 +210,7 @@ class Session:
             params.update(doc['continue'])
             files = None  # Don't send files again
 
-    def login(self, username, password):
+    def login(self, username, password, login_token=None):
         """
         Authenticate with the given credentials.  If authentication is
         successful, all further requests sent will be signed the authenticated
@@ -228,17 +229,34 @@ class Session:
             :class:`mwapi.errors.LoginError` : if authentication fails
             :class:`mwapi.errors.APIError` : if the API responds with an error
         """
-        token_doc = self.post(action="login", lgname=username,
-                              lgpassword=password)
+        if login_token is None:
+            token_doc = self.post(action='query', meta='tokens', type='login')
+            login_token = token_doc['query']['tokens']['logintoken']
 
-        login_doc = self.post(action="login", lgname=username,
-                              lgpassword=password,
-                              lgtoken=token_doc['login']['token'])
+        login_doc = self.post(
+            action="clientlogin", username=username, password=password,
+            logintoken=login_token, loginreturnurl="http://example.org/")
 
-        result = login_doc['login']['result']
-        if result != 'Success':
-            raise LoginError.from_doc(login_doc['login'])
-        return result
+        if login_doc['clientlogin']['status'] == "UI":
+            raise ClientInteractionRequest.from_doc(
+                login_token, login_doc['clientlogin'])
+        elif login_doc['clientlogin']['status'] != 'PASS':
+            raise LoginError.from_doc(login_doc['clientlogin'])
+        return login_doc['clientlogin']
+
+    def continue_login(self, login_token=None, **params):
+
+        login_params = {
+            'action': "clientlogin",
+            'logintoken': login_token,
+            'logincontinue': 1
+        }
+        login_params.update(params)
+        login_doc = self.post(**login_params)
+        if login_doc['clientlogin']['status'] != 'PASS':
+            raise LoginError.from_doc(login_doc['clientlogin'])
+        return login_doc['clientlogin']
+
 
     def logout(self):
         """
