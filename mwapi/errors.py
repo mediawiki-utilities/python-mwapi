@@ -47,7 +47,7 @@ class LoginError(RuntimeError):
 
     @classmethod
     def from_doc(cls, doc):
-        return cls(doc.get('status'))
+        return cls(doc.get('status') + " -- " + doc.get('message'))
 
 
 class ClientInteractionRequest(RuntimeError):
