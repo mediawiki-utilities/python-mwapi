@@ -18,6 +18,7 @@ import sys
 from itertools import islice
 
 import mwapi
+import mwapi.cli
 import mwapi.errors
 
 my_agent = 'mwapi demo script <ahalfaker@wikimedia.org>'
@@ -25,8 +26,7 @@ session = mwapi.Session('https://en.wikipedia.org',
                         formatversion=2,
                         user_agent=my_agent)
 
-print("Logging into English Wikipedia")
-session.login(input("Username: "), getpass.getpass("Password: "))
+mwapi.cli.do_login(session, 'https://en.wikipedia.org')
 
 print("whoami?")
 print("\t", session.get(action='query', meta='userinfo'), "\n")
