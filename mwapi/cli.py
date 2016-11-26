@@ -12,6 +12,7 @@ def do_login(session, for_what):
         params = request_interaction(cir)
         session.continue_login(cir.login_token, **params)
 
+
 def request_interaction(cir):
     sys.stderr.write("{0}\n".format(cir.message))
 
@@ -30,6 +31,7 @@ def request_interaction(cir):
             params[name] = value
 
     return params
+
 
 def request_username_password(for_what):
     sys.stderr.write("Log into " + for_what + "\n")
