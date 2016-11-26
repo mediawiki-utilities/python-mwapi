@@ -1,14 +1,19 @@
+import os.path
+
 from setuptools import setup
 
+about_path = os.path.join(os.path.dirname(__file__), "mwapi/about.py")
+exec(compile(open(about_path).read(), about_path, "exec"))
+
 setup(
-    name="mwapi",
-    version="0.4.1",  # Change in mwapi/__init__.py
-    author="Yuvi Panda",
-    author_email="yuvipanda@gmail.com",
-    url="http://github.com/yuvipanda/python-mwapi",
+    name=__name__,  # noqa
+    version=__version__,  # noqa
+    author=__author__,  # noqa
+    author_email=__author_email__,  # noqa
+    description=__description__,  # noqa
+    url=__url__,  # noqa
     packages=["mwapi"],
     license=open("LICENSE").read(),
-    description="Simple wrapper for the Mediawiki API",
     long_description=open("README.md").read(),
     install_requires=["requests"]
 )
