@@ -21,6 +21,7 @@ Contents
 
     session
     errors
+    cli
 
 Authors
 -------
