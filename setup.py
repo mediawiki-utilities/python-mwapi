@@ -12,8 +12,8 @@ setup(
     author_email=__author_email__,  # noqa
     description=__description__,  # noqa
     url=__url__,  # noqa
+    license=__license__,  # noqa
     packages=["mwapi"],
-    license=open("LICENSE").read(),
     long_description=open("README.md").read(),
     install_requires=["requests"]
 )
