@@ -10,7 +10,9 @@ and that your wiki is using MediaWiki 1.15.3 or greater.
 * **Repositiory:** https://github.com/mediawiki-utilities/python-mwapi
 * **License:** MIT
 
-## Example
+## Examples
+
+### Single query
 
     >>> import mwapi
     >>>
@@ -27,6 +29,39 @@ and that your wiki is using MediaWiki 1.15.3 or greater.
      'timestamp': '2005-12-23T00:07:17Z'}], 'title': 'Grigol Ordzhonikidze',
      'pageid': 1429626}}}, 'batchcomplete': ''}
 
+### Query with continuation
+
+```python
+import mwapi
+from mwapi.errors import APIError
+
+session = mwapi.Session('https://en.wikipedia.org/')
+
+# If passed a `continuation` parameter, returns an iterable over a continued query.
+# On each iteration, a new request is made for the next portion of the results.
+continued = session.get(
+    formatversion=2,
+    action='query',
+    generator='categorymembers',
+    gcmtitle='Category:17th-century classical composers',
+    gcmlimit=100,  # 100 results per request
+    continuation=True)
+
+pages = []
+for portion in continued:
+    try:
+        if 'query' in portion:
+            for page in portion['query']['pages']:
+                pages.append(page['title'])
+        else:
+            print("Mediwiki returned empty result batch.")
+    except APIError:
+        raise ValueError(
+            "MediaWiki returned an error:", str(APIError)
+        )
+
+print("Fetched {} pages".format(len(pages)))
+```
 
 ## Authors
 * YuviPanda -- https://github.com/yuvipanda
