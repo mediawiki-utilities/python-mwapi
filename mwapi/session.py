@@ -59,7 +59,7 @@ class Session:
                  timeout=None, session=None, **session_params):
         self.host = str(host)
         self.formatversion = int(formatversion) \
-                             if formatversion is not None else None
+            if formatversion is not None else None
         self.api_path = str(api_path or "/w/api.php")
         self.api_url = self.host + self.api_path
         self.timeout = float(timeout) if timeout is not None else None

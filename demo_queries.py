@@ -13,7 +13,6 @@ query English Wikipedia's MediaWiki API.  Here's the basic flow:
 5. Cause the API to throw an error and catch it.
 
 """
-import getpass
 import sys
 from itertools import islice
 
@@ -81,6 +80,7 @@ def query_revisions(title=None, pageid=None, batch=50, limit=50,
                 break
         if yielded >= limit:
             break
+
 
 print("Querying by title")
 rev_ids = []
