@@ -54,7 +54,7 @@ for portion in continued:
             for page in portion['query']['pages']:
                 pages.append(page['title'])
         else:
-            print("Mediwiki returned empty result batch.")
+            print("MediaWiki returned empty result batch.")
     except APIError:
         raise ValueError(
             "MediaWiki returned an error:", str(APIError)
