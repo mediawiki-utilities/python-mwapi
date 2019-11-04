@@ -48,17 +48,17 @@ continued = session.get(
     continuation=True)
 
 pages = []
-for portion in continued:
-    try:
+try:
+    for portion in continued:
         if 'query' in portion:
             for page in portion['query']['pages']:
                 pages.append(page['title'])
         else:
             print("Mediwiki returned empty result batch.")
-    except APIError:
-        raise ValueError(
-            "MediaWiki returned an error:", str(APIError)
-        )
+except APIError as error:
+    raise ValueError(
+        "MediaWiki returned an error:", str(error)
+    )
 
 print("Fetched {} pages".format(len(pages)))
 ```
