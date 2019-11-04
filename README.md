@@ -1,13 +1,13 @@
 # MediaWiki API
 
-This MIT Licensed library provides a very simple convenience wrapper 
-around the [MediaWiki API](http://www.mediawiki.org/wiki/API). and 
-includes support for authenticated sessions. It requires Python 3
+This MIT-licensed library provides a very simple convenience wrapper 
+around the [MediaWiki API](https://www.mediawiki.org/wiki/API), 
+including support for authenticated sessions. It requires Python 3
 and that your wiki is using MediaWiki 1.15.3 or greater.
 
 * **Installation:** ``pip install mwapi``
 * **Documentation:** https://pythonhosted.org/mwapi
-* **Repositiory:** https://github.com/mediawiki-utilities/python-mwapi
+* **Repository:** https://github.com/mediawiki-utilities/python-mwapi
 * **License:** MIT
 
 ## Examples
@@ -54,7 +54,7 @@ try:
             for page in portion['query']['pages']:
                 pages.append(page['title'])
         else:
-            print("Mediwiki returned empty result batch.")
+            print("MediaWiki returned empty result batch.")
 except APIError as error:
     raise ValueError(
         "MediaWiki returned an error:", str(error)
