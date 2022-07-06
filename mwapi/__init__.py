@@ -13,12 +13,13 @@ convenience functions for calling the MediaWiki API -- for example,
 :License: MIT
 """
 from .session import Session
+from .async_session import AsyncSession
 from .about import (__name__, __version__, __author__, __author_email__,
                     __description__, __license__, __url__)
 
 
 MWApi = Session
 
-__all__ = [MWApi, Session,
+__all__ = [MWApi, Session, AsyncSession,
            __name__, __version__, __author__, __author_email__,
            __description__, __license__, __url__]
