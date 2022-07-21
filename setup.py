@@ -15,5 +15,5 @@ setup(
     license=__license__,  # noqa
     packages=["mwapi"],
     long_description=open("README.md").read(),
-    install_requires=["requests"]
+    install_requires=["requests", "aiohttp"]
 )

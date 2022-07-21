@@ -17,6 +17,8 @@ Errors
 .. autoclass:: TimeoutError
 """
 import requests.exceptions
+import aiohttp
+import asyncio
 
 
 class APIError(RuntimeError):
@@ -66,16 +68,19 @@ class ClientInteractionRequest(RuntimeError):
         return cls(login_token, doc.get('message'), doc.get('requests', []))
 
 
-class RequestError(requests.exceptions.RequestException):
+class RequestError(requests.exceptions.RequestException,
+                   aiohttp.ClientError):
     """
-    A generic error thrown by :mod:`requests`.
+    A generic error thrown by :mod:`requests` or `aiohttp`.
     """
     pass
 
 
-class ConnectionError(requests.exceptions.ConnectionError):
+class ConnectionError(requests.exceptions.ConnectionError,
+                      aiohttp.ClientConnectionError):
     """
-    Handles a :class:`requests.exceptions.ConnectionError`
+    Handles a :class:`requests.exceptions.ConnectionError` or
+              :class:`aiohttp.ClientConnectionError`.
     """
     pass
 
@@ -87,15 +92,21 @@ class HTTPError(requests.exceptions.HTTPError):
     pass
 
 
-class TooManyRedirectsError(requests.exceptions.TooManyRedirects):
+class TooManyRedirectsError(requests.exceptions.TooManyRedirects,
+                            aiohttp.TooManyRedirects):
     """
-    Handles a :class:`requests.exceptions.TooManyRedirects`
+    Handles a :class:`requests.exceptions.TooManyRedirects` or
+              :class:`aiohttp.TooManyRedirects`.
     """
     pass
 
 
-class TimeoutError(requests.exceptions.Timeout):
+class TimeoutError(requests.exceptions.Timeout,
+                   aiohttp.ServerTimeoutError,
+                   asyncio.exceptions.TimeoutError):
     """
-    Handles a :class:`requests.exceptions.TimeoutError`
+    Handles a :class:`requests.exceptions.TimeoutError` or
+              :class:`aiohttp.ServerTimeoutError` or
+              :class:`asyncio.exceptions.TimeoutError`.
     """
     pass

@@ -63,6 +63,69 @@ except APIError as error:
 print("Fetched {} pages".format(len(pages)))
 ```
 
+### Asynchronous single query
+
+```python
+import asyncio
+import aiohttp
+import mwapi
+
+async def query():
+    async with aiohttp.ClientSession() as s:
+        session = mwapi.AsyncSession(
+                    'https://en.wikipedia.org',
+                    user_agent='mwapi async demo',
+                    session=s)
+        response = await asyncio.create_task(
+            session.get(action='query', prop='revisions', revids=32423425)
+        )
+    print(response)
+
+asyncio.run(query())
+```    
+
+### Asynchronous query with continuation
+
+```python
+import asyncio
+import aiohttp
+
+import mwapi
+from mwapi.errors import APIError
+
+async def query():
+    async with aiohttp.ClientSession() as s:
+        session = mwapi.AsyncSession(
+                    'https://en.wikipedia.org',
+                    user_agent='mwapi async demo',
+                    session=s)
+
+        continued = await asyncio.create_task(
+            session.get(
+                formatversion=2,
+                action='query',
+                generator='categorymembers',
+                gcmtitle='Category:17th-century classical composers',
+                gcmlimit=100,  # 100 results per request
+                continuation=True)
+        )
+        pages = []
+        try:
+            async for portion in continued:
+                if 'query' in portion:
+                    for page in portion['query']['pages']:
+                        pages.append(page['title'])
+                else:
+                    print("MediaWiki returned empty result batch.")
+        except APIError as error:
+            raise ValueError(
+                "MediaWiki returned an error:", str(error)
+            )
+    print("Fetched {} pages".format(len(pages)))
+
+asyncio.run(query())
+```
+
 ## Authors
 * YuviPanda -- https://github.com/yuvipanda
 * Aaron Halfaker -- https://github.com/halfak
