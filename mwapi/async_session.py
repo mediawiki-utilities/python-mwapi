@@ -32,7 +32,7 @@ class AsyncSession:
             How long to wait for the server to send data before giving up
             and raising an error (
             :class:`aiohttp.client_exceptions.ServerTimeoutError` or
-            :class:`asyncio.exceptions.TimeoutError`).
+            :class:`asyncio.TimeoutError`).
             By default aiohttp uses a total 300 seconds (5min) timeout.
         session : `aiohttp.ClientSession`
             (optional) an `aiohttp` session object to use
@@ -106,7 +106,7 @@ class AsyncSession:
             raise ValueError("Could not decode as JSON:\n{0}"
                              .format(prefix))
         except (aiohttp.ServerTimeoutError,
-                asyncio.exceptions.TimeoutError) as e:
+                asyncio.TimeoutError) as e:
             raise TimeoutError(str(e)) from e
         except aiohttp.ClientConnectionError as e:
             raise ConnectionError(str(e)) from e

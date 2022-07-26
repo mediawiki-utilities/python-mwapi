@@ -103,10 +103,10 @@ class TooManyRedirectsError(requests.exceptions.TooManyRedirects,
 
 class TimeoutError(requests.exceptions.Timeout,
                    aiohttp.ServerTimeoutError,
-                   asyncio.exceptions.TimeoutError):
+                   asyncio.TimeoutError):
     """
     Handles a :class:`requests.exceptions.TimeoutError` or
               :class:`aiohttp.ServerTimeoutError` or
-              :class:`asyncio.exceptions.TimeoutError`.
+              :class:`asyncio.TimeoutError`.
     """
     pass
