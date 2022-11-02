@@ -36,7 +36,7 @@ class Session:
     :Parameters:
         host : `str`
             Host to which to connect to. Must include http:// or https:// and
-            no trailing "/".
+            no trailing "/", unless "origin" is also specified.
         user_agent : `str`
             The User-Agent header to include with all requests.  Use this field
             to identify your script/bot/application to system admins of the
@@ -53,16 +53,25 @@ class Session:
             is to hang indefinitely.
         session : `requests.Session`
             (optional) a `requests` session object to use
+        origin: `str`
+            An alternate host to query instead of the host that corresponds
+            to the literal value of the "host" parameter. Useful for interacting
+            with load balancers and internal hostnames.
     """
 
     def __init__(self, host, user_agent=None, formatversion=None,
                  api_path=None,
-                 timeout=None, session=None, **session_params):
+                 timeout=None, session=None, origin=None,
+                 **session_params):
         self.host = str(host)
         self.formatversion = int(formatversion) \
             if formatversion is not None else None
         self.api_path = str(api_path or "/w/api.php")
-        self.api_url = self.host + self.api_path
+        if origin:
+            self.api_url = origin + self.api_path
+        else:
+            self.api_url = self.host + self.api_path
+
         self.timeout = float(timeout) if timeout is not None else None
         self.session = session or requests.Session()
         for key, value in session_params.items():
@@ -77,6 +86,9 @@ class Session:
             self.headers['User-Agent'] = DEFAULT_USERAGENT
         else:
             self.headers['User-Agent'] = user_agent
+
+        if origin:
+            self.headers['Host'] = self.host
 
     def _request(self, method, params=None, files=None, auth=None):
         params = params or {}
