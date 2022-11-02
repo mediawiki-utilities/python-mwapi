@@ -84,8 +84,11 @@ class AsyncSession:
                                             headers=self.headers,
                                             verify_ssl=True,
                                             auth=auth) as resp:
-
-                doc = await resp.json()
+                if resp.status < 500:
+                    doc = await resp.json()
+                else:
+                    raise APIError(
+                        resp.status, "50x HTTP response", resp.reason)
 
                 if 'error' in doc:
                     raise APIError.from_doc(doc['error'])
