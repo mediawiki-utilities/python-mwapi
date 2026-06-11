@@ -112,6 +112,11 @@ class AsyncSession:
             raise ConnectionError(str(e)) from e
         except aiohttp.TooManyRedirects as e:
             raise TooManyRedirectsError(str(e)) from e
+        except APIError:
+            # Raised above for a JSON 'error' response. Let it propagate with its
+            # structured .code/.info/.content instead of re-wrapping as RequestError
+            # below (matches the synchronous Session, which raises it uncaught).
+            raise
         except Exception as e:
             raise RequestError(str(e)) from e
 
