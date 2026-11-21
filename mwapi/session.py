@@ -129,9 +129,12 @@ class Session:
         if 'warnings' in doc:
             logger.warning("The following query raised warnings: {0}"
                            .format(params or data))
-            for module, warning in doc['warnings'].items():
+            warnings = doc['warnings']
+            if isinstance(warnings, dict):
+                warnings = [{**warning, 'module': module} for module, warning in warnings.items()]
+            for warning in warnings:
                 logger.warning("\t- {0} -- {1}"
-                               .format(module, warning))
+                               .format(warning['module'], warning))
         return doc
 
     def request(self, method, params=None, query_continue=None,
